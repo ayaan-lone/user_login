@@ -14,6 +14,7 @@ import com.test.userlogin.service.RegistrationService;
 
 import jakarta.validation.Valid;
 
+//Includes the Response entity for Registering the User.
 
 // Create a Rest Controller
 @RequestMapping("/api/v1/")
@@ -21,20 +22,20 @@ import jakarta.validation.Valid;
 //Rest Controller for Registration, creates a RegistrationService Object
 public class RegistrationController {
 	private final RegistrationService registrationService;
-	
+
 //Constructor Injection
 	@Autowired
 	public RegistrationController(RegistrationService registrationService) {
 		this.registrationService = registrationService;
 	}
+
 //Create A Response entity for registering the user
 	@PostMapping("register")
-	public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDto userRegistrationDto) throws UserLoginException{
-		
+	public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDto userRegistrationDto)
+			throws UserLoginException {
+
 		String response = registrationService.registerUser(userRegistrationDto);
-		
-		
-		
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 

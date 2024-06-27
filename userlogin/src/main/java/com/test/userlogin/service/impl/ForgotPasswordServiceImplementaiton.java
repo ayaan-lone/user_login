@@ -1,7 +1,6 @@
 package com.test.userlogin.service.impl;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Random;
 
@@ -43,7 +42,7 @@ public class ForgotPasswordServiceImplementaiton implements ForgotPasswordServic
 		String otp = String.valueOf(new Random().nextInt(900000) + 100000);
 		user.setOtp(otp);
 		user.setOptGenerationTime(LocalDateTime.now());
-		user.setVerifiedOtp(false);
+
 		userRepository.save(user);
 
 		return otp;
@@ -51,34 +50,39 @@ public class ForgotPasswordServiceImplementaiton implements ForgotPasswordServic
 
 	@Override
 	public String resetPassword(ResetPasswordDto resetPasswordDto) throws UserLoginException {
-	    
-	    Optional<Users> userOptional = userRepository.findByUsername(resetPasswordDto.getUsername());
-	    
-	    if (userOptional.isPresent()) {
-	        Users user = userOptional.get();
-	        
-	        // Check if OTP matches
-	        if (resetPasswordDto.getOtp().equals(user.getOtp())) {
-	            // Check if OTP is within validity period (5 minutes)
-	            LocalDateTime otpGenerationTime = user.getOptGenerationTime();
-	            LocalDateTime currentTime = LocalDateTime.now();
-	            long minutesElapsed = ChronoUnit.MINUTES.between(otpGenerationTime, currentTime);
-	            
-	            if (minutesElapsed <= 5) {
-	                // Set the new password
-	                user.setPassword(resetPasswordDto.getNewPassword());
-	                userRepository.save(user);
-	                return "The Password has been set"; // Return success message after saving
-	            } else {
-	                throw new UserLoginException(HttpStatus.BAD_REQUEST, ConstantsUtil.OTP_EXPIRED);
-	            }
-	        } else {
-	            throw new UserLoginException(HttpStatus.BAD_REQUEST, ConstantsUtil.OTP_IS_INCORRECT);
-	        }
-	    } else {
-	        throw new UserLoginException(HttpStatus.NOT_FOUND, ConstantsUtil.USER_NOT_AVAILABLE);
-	    }
-	}
+		Optional<Users> userOptional = userRepository.findByUsername(resetPasswordDto.getUsername());
+		//
 
+		if (!userOptional.isPresent()) {
+			throw new UserLoginException(HttpStatus.NOT_FOUND, ConstantsUtil.USER_NOT_AVAILABLE);
+		}
+
+		Users user = userOptional.get();
+		// Check if OTP is generated for the user
+		if (user.getOtp() == null) {
+			throw new UserLoginException(HttpStatus.BAD_REQUEST, ConstantsUtil.OTP_NOT_GENERATED);
+		}
+
+		if (!resetPasswordDto.getOtp().equals(user.getOtp())) {
+			throw new UserLoginException(HttpStatus.BAD_REQUEST, ConstantsUtil.OTP_IS_INCORRECT); // OTP is not verified
+		}
+
+		LocalDateTime otpGenerationTime = user.getOptGenerationTime();
+		LocalDateTime currentTime = LocalDateTime.now();
+
+		if (!otpGenerationTime.isBefore(currentTime) && otpGenerationTime.plusMinutes(5).isAfter(currentTime)) {
+			user.setOtp(null);
+			throw new UserLoginException(HttpStatus.BAD_REQUEST, ConstantsUtil.OTP_EXPIRED);
+		}
+
+		// Set the new password
+		user.setPassword(resetPasswordDto.getNewPassword());
+
+		user.setOtp(null);
+		user.setOptGenerationTime(null);
+		userRepository.save(user);
+		return "The Password has been set";
+
+	}
 
 }

@@ -49,7 +49,7 @@ public class Users implements Serializable {
 	private int loginAttempts = 0;
 
 	private String Otp;
-	private boolean isVerifiedOtp = false;
+
 	private LocalDateTime optGenerationTime;
 
 	public LocalDateTime getOptGenerationTime() {
@@ -66,14 +66,6 @@ public class Users implements Serializable {
 
 	public void setOtp(String otp) {
 		Otp = otp;
-	}
-
-	public boolean setVerifiedOtp() {
-		return isVerifiedOtp;
-	}
-
-	public void setVerifiedOtp(boolean isVerifiedOtp) {
-		this.isVerifiedOtp = isVerifiedOtp;
 	}
 
 	public int getLoginAttempts() {

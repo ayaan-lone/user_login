@@ -30,11 +30,6 @@ public class UserServiceImplementation implements UserService {
 		return userRepository.findAll();
 	}
 
-	// Max_Failed_Attempts and Lock_Time_Duration constants(Create a Util File and
-	// use them from that)
-	private static final int MAX_FAILED_ATTEMPTS = 5;
-	private static final int LOCK_TIME_DURATION = 24;
-
 	// Override the loginUser String type Abstract Method(using the Login DTO here)
 
 	@Override
@@ -55,7 +50,7 @@ public class UserServiceImplementation implements UserService {
 				LocalDateTime now = LocalDateTime.now();
 
 				// if the LockTime ! null and the lock time is before 24 hours
-				if (lockTime != null && now.isBefore(lockTime.plusHours(LOCK_TIME_DURATION))) {
+				if (lockTime != null && now.isBefore(lockTime.plusHours(ConstantsUtil.LOCK_TIME_DURATION))) {
 
 					throw new UserLoginException(HttpStatus.FORBIDDEN, ConstantsUtil.USER_BLOCKED_MESSAGE);
 
@@ -79,8 +74,9 @@ public class UserServiceImplementation implements UserService {
 
 				// Check the Login Attempts, if greater than max, set user to blocked, save the
 				// block time
-				if (user.getLoginAttempts() >= MAX_FAILED_ATTEMPTS) { // only if the user has attempted more than 5
-																		// times
+				if (user.getLoginAttempts() >= ConstantsUtil.MAX_FAILED_ATTEMPTS) { // only if the user has attempted
+																					// more than 5
+					// times
 					user.setBlocked(true);
 					user.setBlockTime(LocalDateTime.now());
 					userRepository.save(user);
