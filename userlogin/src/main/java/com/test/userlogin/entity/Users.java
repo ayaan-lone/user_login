@@ -1,4 +1,5 @@
 package com.test.userlogin.entity;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -8,7 +9,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
+// A Table named users is created, all the fields are present here.
 @Entity
 @Table(name = "users")
 
@@ -19,28 +22,59 @@ public class Users implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
 	private Long id;
-	
-	@Column
+
+	// Should be Unique
+	@Column(unique = true)
+	@NotNull
 	private String username;
-	
+
 	@Column
 	private String password;
-	
-	@Column
-	private String email;
-	
 
-	
+	// Should be Unique
+	@Column
+	@NotNull
+	private String email;
+
+	// Is the User Blocked or not(By Default it is set to False)
 	@Column
 	private boolean blocked = false;
-	
+
+	// Time to check 24 hours
 	@Column
 	private LocalDateTime blockTime;
-	
+
+	// A counter for User Login Attempts.
 	@Column
 	private int loginAttempts = 0;
-	
-	
+
+	private String Otp;
+	private boolean isVerifiedOtp = false;
+	private LocalDateTime optGenerationTime;
+
+	public LocalDateTime getOptGenerationTime() {
+		return optGenerationTime;
+	}
+
+	public void setOptGenerationTime(LocalDateTime optGenerationTime) {
+		this.optGenerationTime = optGenerationTime;
+	}
+
+	public String getOtp() {
+		return Otp;
+	}
+
+	public void setOtp(String otp) {
+		Otp = otp;
+	}
+
+	public boolean setVerifiedOtp() {
+		return isVerifiedOtp;
+	}
+
+	public void setVerifiedOtp(boolean isVerifiedOtp) {
+		this.isVerifiedOtp = isVerifiedOtp;
+	}
 
 	public int getLoginAttempts() {
 		return loginAttempts;
@@ -97,12 +131,7 @@ public class Users implements Serializable {
 	public void setBlockTime(LocalDateTime blockTime) {
 		this.blockTime = blockTime;
 	}
-	
-	
-	
-	
 
-
-	
+	// Getters and Setters are here
 
 }

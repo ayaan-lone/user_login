@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.userlogin.entity.Users;
+import com.test.userlogin.exception.UserLoginException;
 import com.test.userlogin.request.LoginDto;
 import com.test.userlogin.request.ResetPasswordDto;
 import com.test.userlogin.service.UserService;
@@ -22,34 +23,25 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-
+// to get all the users list
 	@GetMapping
 	public ResponseEntity<List<Users>> getAllUsers() {
 		List<Users> users = userService.getAllUsers();
 		return ResponseEntity.ok(users);
 	}
 
+
 	@PostMapping("/login")
-	public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) {
+	
+	
+	public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) throws UserLoginException{
 		String response = userService.loginUser(loginDto);
-		if ("Successfully logged in".equals(response)) {
-			return ResponseEntity.ok(response);
-		} else if ("User is bloker.".equals(response)
-				|| "User bloker."
-						.equals(response)) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-		}
+		return ResponseEntity.ok(response);
+		//Checks if the response from the ServiceImpl is equal to this, then return this
+		
+	}
+	//
+
+
 	}
 
-	@PostMapping("/reset-password")
-	public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
-		String response = userService.resetPassword(resetPasswordDto);
-		if ("Password successfully reset".equals(response)) {
-			return ResponseEntity.ok(response);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-		}
-	}
-}
